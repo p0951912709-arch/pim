@@ -8,223 +8,162 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.14.2/dist/leaflet-geoman.css" />
     <link rel="stylesheet" href="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
     <style>
         /* --- GLOBAL STYLES --- */
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Sarabun', sans-serif; background: #f0f2f5; overflow: hidden; color: #333; }
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Sarabun', sans-serif; background: #f0f2f5; overflow: hidden; color: #202124; }
         * { box-sizing: border-box; }
-
-        /* --- CUSTOM MODAL --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);
-            z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px);
-        }
-        .modal-box {
-            background: white; width: 380px; max-width: 90%; border-radius: 8px; padding: 24px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: popIn 0.2s ease-out; font-family: 'Sarabun';
-        }
-        @keyframes popIn { from {transform: scale(0.95); opacity: 0;} to {transform: scale(1); opacity: 1;} }
-        
-        .modal-title { font-size: 20px; font-weight: 600; margin-bottom: 10px; color: #1a73e8; }
-        .modal-desc { font-size: 14px; color: #5f6368; margin-bottom: 20px; line-height: 1.5; }
-        .modal-input { width: 100%; padding: 10px; border: 1px solid #dadce0; border-radius: 4px; font-family: 'Sarabun'; margin-bottom: 20px; outline: none; transition: 0.2s; }
-        .modal-input:focus { border-color: #1a73e8; box-shadow: 0 0 0 1px #1a73e8; }
-        
-        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
-        .btn-modal { padding: 8px 24px; border-radius: 4px; font-weight: 600; cursor: pointer; border: none; font-family: 'Sarabun'; transition: 0.2s; font-size: 14px; }
-        .btn-cancel { background: white; color: #1a73e8; border: 1px solid #ddd; }
-        .btn-cancel:hover { background: #f5f8fd; }
-        .btn-confirm { background: #1a73e8; color: white; }
-        .btn-confirm:hover { background: #1557b0; }
-        .btn-danger { background: #d93025; color: white; }
-        .btn-danger:hover { background: #b0281f; }
-
-        /* EXPORT MODAL OPTIONS */
-        .export-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-        .export-option {
-            padding: 12px; border: 1px solid #dadce0; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s;
-        }
-        .export-option:hover { background: #f0f5ff; border-color: #1a73e8; }
-        .export-option i { color: #1a73e8; font-size: 20px; }
 
         /* --- DASHBOARD --- */
         #dashboard-view { display: flex; flex-direction: column; height: 100%; width: 100%; }
-        .dash-header { background: #fff; padding: 15px 30px; border-bottom: 1px solid #dadce0; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* LOGO STYLE */
-        .dash-logo { font-size: 24px; color: #1a73e8; font-weight: 700; display: flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px; }
-        
+        .dash-header { background: #fff; padding: 15px 30px; border-bottom: 1px solid #dadce0; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .dash-logo { font-size: 22px; color: #1a73e8; font-weight: 700; display: flex; align-items: center; gap: 10px; }
         .dash-content { padding: 40px; overflow-y: auto; flex: 1; background: #fff; }
-        .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
+        .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
         
         .project-card { 
             background: #fff; border-radius: 8px; border: 1px solid #dadce0; cursor: pointer; 
             transition: all 0.2s; height: 220px; display: flex; flex-direction: column; position: relative; overflow: hidden;
         }
         .project-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-color: #1a73e8; }
-        .card-preview { flex: 1; background: #f1f3f4; display: flex; align-items: center; justify-content: center; font-size: 50px; color: #bdc1c6; }
-        .card-body { padding: 16px; border-top: 1px solid #dadce0; }
-        .card-title { font-weight: 600; font-size: 16px; color: #202124; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .card-meta { font-size: 12px; color: #5f6368; }
-        .card-delete { 
-            position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 50%; 
-            background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center;
-            opacity: 0; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); color: #5f6368;
+        .card-preview { 
+            flex: 1; background-color: #f1f3f4; 
+            background-image: url('https://mt1.google.com/vt/lyrs=m&x=130&y=95&z=8'); 
+            background-size: cover; background-position: center; position: relative;
         }
+        .card-body { padding: 16px; border-top: 1px solid #dadce0; background: #fff; }
+        .card-title { font-weight: 600; font-size: 16px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-meta { font-size: 12px; color: #5f6368; }
+        .card-delete { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); color: #d93025; }
         .project-card:hover .card-delete { opacity: 1; }
-        .card-delete:hover { background: #d93025; color: white; }
 
-        .btn-create { background: #1a73e8; color: white; padding: 10px 24px; border-radius: 4px; border: none; font-weight: 600; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); font-size: 14px; }
-        .btn-create:hover { background: #1557b0; }
+        .btn-create { background: #1a73e8; color: white; padding: 10px 24px; border-radius: 4px; border: none; font-weight: 600; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
         /* --- MAP EDITOR --- */
         #map-view { display: none; height: 100%; width: 100%; }
-
-        /* Left Sidebar */
-        #sidebar-left { width: 320px; background: #fff; border-right: 1px solid #dadce0; display: flex; flex-direction: column; z-index: 2000; flex-shrink: 0; box-shadow: 4px 0 10px rgba(0,0,0,0.05); }
         
-        .editor-header { padding: 15px; border-bottom: 1px solid #eee; display: flex; flex-direction: column; gap: 10px; background: #fff; }
-        .header-top { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-        .brand-text { font-size: 18px; font-weight: 700; color: #1a73e8; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
-        
-        .btn-back { cursor: pointer; color: #5f6368; padding: 5px; border-radius: 50%; font-size: 16px; }
-        .btn-back:hover { background: #f1f3f4; color: #1a73e8; }
-        
-        .project-name { border: none; font-size: 16px; font-weight: 600; color: #202124; width: 100%; outline: none; background: transparent; padding: 5px 0; border-bottom: 1px solid transparent; }
+        /* SIDEBAR LEFT */
+        #sidebar-left { width: 320px; background: #fff; border-right: 1px solid #dadce0; display: flex; flex-direction: column; z-index: 2000; box-shadow: 2px 0 5px rgba(0,0,0,0.1); }
+        .editor-header { padding: 15px; border-bottom: 1px solid #eee; display: flex; flex-direction: column; gap: 10px; }
+        .header-top { display: flex; align-items: center; justify-content: space-between; }
+        .brand-text { font-size: 18px; font-weight: 700; color: #1a73e8; text-transform: uppercase; }
+        .btn-back { cursor: pointer; color: #5f6368; padding: 5px; font-size: 18px; }
+        .project-name { border: none; font-size: 16px; font-weight: 600; width: 100%; outline: none; border-bottom: 1px solid transparent; }
         .project-name:focus { border-bottom: 2px solid #1a73e8; }
 
         .toolbar { padding: 10px 15px; background: #f8f9fa; border-bottom: 1px solid #ddd; display: flex; flex-direction: column; gap: 10px; }
-        .btn-group { display: flex; gap: 10px; }
-        .btn-tool {
-            flex: 1; padding: 8px; background: #fff; border: 1px solid #dadce0; border-radius: 4px;
-            cursor: pointer; font-size: 13px; font-weight: 600; color: #3c4043; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.1s;
-        }
+        .btn-tool { width: 100%; padding: 8px; background: #fff; border: 1px solid #dadce0; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-tool:hover { background: #e8f0fe; color: #1a73e8; border-color: #1a73e8; }
-        
-        .btn-add-layer {
-            width: 100%; padding: 10px; background: #fff; border: 1px dashed #1a73e8; border-radius: 4px;
-            cursor: pointer; color: #1a73e8; font-weight: 600; font-size: 13px; text-align: center; margin-top: 5px;
-        }
-        .btn-add-layer:hover { background: #f0f5ff; }
+        .search-bar { position: relative; }
+        .search-bar input { width: 100%; padding: 8px 35px 8px 10px; border: 1px solid #dadce0; border-radius: 4px; }
+        .search-btn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #5f6368; cursor: pointer; }
 
-        .search-bar { position: relative; width: 100%; }
-        .search-bar input { 
-            width: 100%; padding: 10px 40px 10px 12px; border: 1px solid #dadce0; border-radius: 4px; 
-            box-sizing: border-box; font-family: 'Sarabun'; font-size: 14px; outline: none;
-        }
-        .search-bar input:focus { border-color: #1a73e8; box-shadow: 0 0 0 2px rgba(26,115,232,0.1); }
-        .search-btn { 
-            position: absolute; right: 0; top: 0; height: 100%; width: 40px; 
-            color: #5f6368; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
-        .search-btn:hover { color: #1a73e8; }
-
-        /* Layer List */
+        /* LAYER LIST */
         #layer-list { flex: 1; overflow-y: auto; padding: 0; }
-        .layer-group { border-bottom: 1px solid #eee; }
-        .group-header { 
-            padding: 10px 15px; display: flex; align-items: center; cursor: pointer; 
-            background: #fff; transition: 0.2s; border-left: 3px solid transparent;
-        }
-        .group-header:hover { background: #f8f9fa; }
-        .group-header.active { border-left-color: #1a73e8; }
-        .group-title { font-weight: 600; font-size: 13px; color: #202124; flex: 1; margin-left: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        .group-actions { opacity: 0; transition: 0.2s; display: flex; gap: 5px; }
-        .group-header:hover .group-actions { opacity: 1; }
-        .icon-btn { color: #5f6368; padding: 6px; border-radius: 4px; font-size: 14px; }
-        .icon-btn:hover { background: #e8eaed; color: #1a73e8; }
-        .icon-btn.del:hover { color: #d93025; background: #fce8e6; }
+        .layer-group { border-bottom: 1px solid #f0f0f0; }
+        .group-header { padding: 10px 15px; display: flex; align-items: center; cursor: pointer; background: #fff; transition:0.2s; }
+        .group-header:hover { background: #f9f9f9; }
+        .group-header.active { border-left: 4px solid #1a73e8; background: #f0f5ff; }
+        .group-title { font-weight: 600; font-size: 13px; flex: 1; margin-left: 8px; }
+        .group-actions { display: none; gap: 5px; }
+        .group-header:hover .group-actions { display: flex; }
+        .icon-btn { color: #5f6368; padding: 4px; border-radius: 4px; font-size: 12px; }
+        .icon-btn:hover { background: #e0e0e0; color: #1a73e8; }
+        .icon-btn.del:hover { background: #fce8e6; color: #d93025; }
 
-        .sub-items { display: block; padding-bottom: 5px; }
-        .layer-item { 
-            padding: 6px 15px 6px 45px; display: flex; align-items: center; cursor: pointer; 
-            font-size: 13px; color: #3c4043; border-left: 3px solid transparent; transition: 0.1s;
-        }
-        .layer-item:hover { background: #e8f0fe; color: #1a73e8; border-left-color: #1a73e8; }
-        .layer-item input { margin-right: 12px; cursor: pointer; }
+        .layer-item { padding: 6px 15px 6px 45px; display: flex; align-items: center; cursor: pointer; font-size: 13px; border-left: 3px solid transparent; }
+        .layer-item:hover { background: #e8f0fe; border-left-color: #1a73e8; }
 
-        /* Map & Right Panel */
+        /* SIDEBAR RIGHT & MAP */
         #map { flex: 1; height: 100%; background: #e5e3df; }
-        #sidebar-right { width: 400px; background: #fff; border-left: 1px solid #dadce0; display: flex; flex-direction: column; z-index: 2000; flex-shrink: 0; box-shadow: -2px 0 6px rgba(0,0,0,0.1); transition: width 0.3s; }
+        #sidebar-right { width: 400px; background: #fff; border-left: 1px solid #dadce0; display: flex; flex-direction: column; z-index: 2000; box-shadow: -2px 0 5px rgba(0,0,0,0.1); transition: width 0.3s; }
         #sidebar-right.expanded { width: 650px; }
+        .rs-header { padding: 12px 20px; font-weight: 600; border-bottom: 1px solid #dadce0; display: flex; justify-content: space-between; align-items: center; background: #fff; }
         
-        .rs-header { background: #fff; color: #202124; padding: 12px 20px; font-size: 14px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dadce0; }
-        .rs-btn { background: transparent; border: 1px solid #dadce0; color: #5f6368; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 14px; }
-        .rs-btn:hover { background: #f1f3f4; color: #202124; }
-        
-        #sv-container { height: 300px; background: #202124; position: relative; display: flex; align-items: center; justify-content: center; }
+        /* Fix overlapping: Container for StreetView */
+        #sv-container { height: 320px; background: #202124; position: relative; flex-shrink: 0; }
         #sv-image, #sv-iframe { width: 100%; height: 100%; object-fit: cover; border: none; }
+        
+        /* Info Container: Scrollable */
         #info-container { flex: 1; padding: 20px; overflow-y: auto; background: #fff; }
         .info-row { border-bottom: 1px solid #f1f3f4; padding: 10px 0; }
-        .label { font-size: 11px; font-weight: 600; color: #5f6368; margin-bottom: 4px; text-transform: uppercase; }
-        .value { font-size: 14px; color: #202124; line-height: 1.5; }
+        .label { font-size: 12px; font-weight: 600; color: #5f6368; margin-bottom: 4px; }
+        .value { font-size: 14px; line-height: 1.5; color: #202124; }
 
-        /* Google Style Popup */
-        .leaflet-popup-content-wrapper { padding: 0; border-radius: 8px; box-shadow: 0 2px 7px 1px rgba(0,0,0,0.3); }
-        .leaflet-popup-content { margin: 0; width: 300px !important; font-family: 'Sarabun'; }
-        .leaflet-popup-tip { box-shadow: 0 2px 7px 1px rgba(0,0,0,0.3); }
+        /* POPUP (Google Style) */
+        .leaflet-popup-content-wrapper { padding: 0; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .leaflet-popup-content { margin: 0; width: 320px !important; font-family: 'Sarabun'; }
         .popup-header { padding: 15px 20px 5px; }
-        .popup-title-inp { width: 100%; border: none; font-size: 18px; font-weight: 500; color: #202124; outline: none; background: transparent; padding-bottom: 4px; }
+        .popup-title-inp { width: 100%; border: none; font-size: 18px; font-weight: 600; color: #202124; outline: none; background: transparent; }
         .popup-title-inp:focus { border-bottom: 2px solid #1a73e8; }
-        .popup-body { padding: 0 20px 15px; }
-        .popup-desc-inp { width: 100%; border: none; resize: none; font-size: 14px; line-height: 1.5; outline: none; font-family: 'Sarabun'; background: transparent; color: #444; }
-        .popup-desc-inp:focus { background: #f1f3f4; padding: 8px; border-radius: 4px; }
+        .popup-body { padding: 0 20px 10px; }
+        .popup-desc-inp { width: 100%; border: none; resize: none; font-size: 14px; outline: none; font-family: 'Sarabun'; color: #444; background: transparent; }
+        .popup-desc-inp:focus { background: #f1f3f4; padding: 5px; border-radius: 4px; }
+        
+        .color-picker-row { padding: 0 20px; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .popup-footer { border-top: 1px solid #dadce0; padding: 10px 20px; display: flex; justify-content: flex-end; gap: 15px; background: #fdfdfd; border-radius: 0 0 8px 8px; }
-        .pop-icon { cursor: pointer; color: #5f6368; font-size: 16px; padding: 5px; border-radius: 50%; transition: 0.2s; }
-        .pop-icon:hover { color: #202124; background: #f1f3f4; }
-        .pop-icon.del:hover { color: #d93025; background: #fce8e6; }
+        .pop-icon { cursor: pointer; color: #5f6368; font-size: 16px; padding: 5px; }
+        .pop-icon:hover { color: #1a73e8; background: #f1f3f4; border-radius: 50%; }
+        .pop-icon.del:hover { color: #d93025; }
 
-        /* Map Controls Override */
-        .leaflet-control-locate { background: white; width: 40px; height: 40px; border-radius: 2px; box-shadow: 0 1px 4px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; cursor: pointer; margin-top: 10px !important; margin-left: 10px !important; transition: 0.2s; }
-        .leaflet-control-locate:hover { color: #1a73e8; }
-        .locate-icon { font-size: 18px; color: #666; }
+        /* MODALS */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+        .modal-box { background: white; width: 400px; max-width: 90%; border-radius: 8px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .table-modal-box { width: 90%; max-width: 1200px; height: 80%; display: flex; flex-direction: column; }
+        
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th, .data-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .data-table th { background-color: #f8f9fa; position: sticky; top: 0; }
+        .data-table tr:hover { background-color: #f1f3f4; }
 
-        /* Custom Red Marker */
+        /* Controls & Loader */
+        .leaflet-control-locate { background: white; width: 34px; height: 34px; border-radius: 4px; display: flex; justify-content: center; align-items: center; cursor: pointer; margin-top: 10px !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4); }
         .google-marker-icon { filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
-
-        /* Loading */
         #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); z-index:10000; display:none; justify-content:center; align-items:center; flex-direction:column; }
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #1a73e8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
     </style>
 </head>
 <body>
 
-    <div id="custom-modal" class="modal-overlay">
+    <!-- <div id="custom-modal" class="modal-overlay">
         <div class="modal-box">
-            <div id="modal-title" class="modal-title">หัวข้อ</div>
-            <div id="modal-desc" class="modal-desc">รายละเอียด</div>
-            <input type="text" id="modal-input" class="modal-input" style="display:none;">
-            <div class="modal-actions">
-                <button class="btn-modal btn-cancel" onclick="closeModal()">ยกเลิก</button>
-                <button id="modal-confirm-btn" class="btn-modal btn-confirm">ยืนยัน</button>
+            <div id="modal-title" style="font-size:18px; font-weight:600; margin-bottom:10px; color:#1a73e8;"></div>
+            <div id="modal-desc" style="font-size:14px; color:#555; margin-bottom:20px;"></div>
+            <input type="text" id="modal-input" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px; display:none;">
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                <button onclick="closeModal()" style="padding:8px 20px; background:#fff; border:1px solid #ddd; border-radius:4px; cursor:pointer;">ยกเลิก</button>
+                <button id="modal-confirm-btn" style="padding:8px 20px; background:#1a73e8; color:white; border:none; border-radius:4px; cursor:pointer;">ยืนยัน</button>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <div id="export-modal" class="modal-overlay">
         <div class="modal-box">
-            <div class="modal-title">ส่งออกข้อมูล</div>
-            <div class="modal-desc">เลือกรูปแบบไฟล์ที่ต้องการส่งออก:</div>
-            <div class="export-options">
-                <div class="export-option" onclick="triggerExport('geojson')">
-                    <i class="fa-solid fa-code"></i> JSON (GeoJSON)
-                </div>
-                <div class="export-option" onclick="triggerExport('kml')">
-                    <i class="fa-solid fa-earth-americas"></i> KML (Google Earth)
-                </div>
+            <div style="font-size:18px; font-weight:600; margin-bottom:15px;">ส่งออกข้อมูล</div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <button class="btn-tool" onclick="triggerExport('shapefile')"><i class="fa-solid fa-file-zipper"></i> Shapefile (.zip)</button>
+                <button class="btn-tool" onclick="triggerExport('geojson')"><i class="fa-solid fa-code"></i> GeoJSON</button>
+                <button class="btn-tool" onclick="triggerExport('kml')"><i class="fa-solid fa-earth-americas"></i> KML</button>
+                <button class="btn-tool" onclick="triggerExport('csv')"><i class="fa-solid fa-table"></i> CSV</button>
             </div>
-            <div class="modal-actions">
-                <button class="btn-modal btn-cancel" onclick="document.getElementById('export-modal').style.display='none'">ปิด</button>
-            </div>
+            <button onclick="document.getElementById('export-modal').style.display='none'" style="width:100%; margin-top:20px; padding:10px; background:#eee; border:none; cursor:pointer;">ปิด</button>
         </div>
     </div>
 
-    <div id="loader"><div class="spinner"></div><div style="margin-top:15px;font-weight:500;color:#5f6368">กำลังโหลดข้อมูล...</div></div>
+    <div id="table-modal" class="modal-overlay">
+        <div class="modal-box table-modal-box">
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                <span style="font-size:18px; font-weight:600;">ตารางข้อมูลรายชื่อ</span>
+                <button onclick="document.getElementById('table-modal').style.display='none'" style="background:none; border:none; font-size:20px; cursor:pointer;">&times;</button>
+            </div>
+            <div id="table-content" style="flex:1; overflow:auto;"></div>
+        </div>
+    </div>
+
+    <div id="loader"><div class="spinner"></div><div style="margin-top:15px; color:#1a73e8; font-weight:600;">กำลังดำเนินการ...</div></div>
 
     <div id="dashboard-view">
         <div class="dash-header">
@@ -241,31 +180,23 @@
             <div class="editor-header">
                 <div class="header-top">
                     <div class="brand-text"><i class="fa-solid fa-earth-americas"></i> WEB GIS SYSTEM</div>
-                    <div class="btn-back" onclick="saveAndExit()" title="บันทึกและกลับหน้าหลัก"><i class="fa-solid fa-arrow-left"></i></div>
+                    <div class="btn-back" onclick="saveAndExit()"><i class="fa-solid fa-arrow-left"></i></div>
                 </div>
-                <div>
-                    <input type="text" id="proj-name" class="project-name" value="แผนที่ไม่มีชื่อ" onchange="updateMetaName(this.value)">
-                </div>
+                <input type="text" id="proj-name" class="project-name" value="แผนที่ไม่มีชื่อ" onchange="updateMetaName(this.value)">
             </div>
             
             <div class="toolbar">
-                <div class="btn-group">
-                    <button class="btn-tool" onclick="document.getElementById('fileInput').click()">
-                        <i class="fa-solid fa-upload"></i> นำเข้า
-                    </button>
-                    <button class="btn-tool" onclick="openExportModal(null)">
-                        <i class="fa-solid fa-download"></i> ส่งออกทั้งหมด
-                    </button>
+                <div class="btn-tool" onclick="document.getElementById('fileInput').click()">
+                    <i class="fa-solid fa-upload"></i> นำเข้าข้อมูล (Shapefile/KML/JSON)
                 </div>
-
-                <input type="file" id="fileInput" accept=".json,.geojson,.kml,.zip" style="display:none;">
+                <input type="file" id="fileInput" accept=".zip,.kml,.json,.geojson,.csv" style="display:none;">
                 
                 <div class="search-bar">
                     <input type="text" id="search-inp" placeholder="ค้นหาสถานที่ (กด Enter)...">
                     <div class="search-btn" onclick="searchLoc()"><i class="fa-solid fa-magnifying-glass"></i></div>
                 </div>
 
-                <button class="btn-add-layer" onclick="showInputModal('เพิ่มเลเยอร์ใหม่', 'กรุณาตั้งชื่อเลเยอร์:', (name) => createGroupUI(name))">
+                <button style="width:100%; padding:10px; background:#fff; border:1px dashed #1a73e8; border-radius:4px; color:#1a73e8; cursor:pointer; margin-top:5px;" onclick="showInputModal('เพิ่มเลเยอร์', 'ชื่อเลเยอร์:', (name)=>createGroupUI(name))">
                     <i class="fa-solid fa-layer-group"></i> เพิ่มเลเยอร์ใหม่
                 </button>
             </div>
@@ -278,20 +209,16 @@
         <div id="sidebar-right">
             <div class="rs-header">
                 <span><i class="fa-solid fa-street-view"></i> มุมมองถนน</span>
-                <button class="rs-btn" onclick="toggleSize()"><i class="fa-solid fa-expand"></i></button>
+                <button onclick="toggleSize()" style="background:none; border:1px solid #ccc; border-radius:4px; cursor:pointer;"><i class="fa-solid fa-expand"></i></button>
             </div>
             <div id="sv-container">
                 <div id="sv-msg" style="color:#aaa;">คลิกจุดบนแผนที่</div>
                 <img id="sv-image" style="display:none;">
                 <iframe id="sv-iframe" style="display:none;"></iframe>
-            </div>
-            <div class="rs-header" style="border-top:1px solid #dadce0;">
-                รายละเอียดสถานที่
-            </div>
-            <div id="info-container">
-                <div style="text-align:center; padding-top:40px; color:#aaa;">ไม่มีข้อมูลที่เลือก</div>
-            </div>
-        </div>
+            <!-- </div>
+            <div class="rs-header" style="border-top:1px solid #eee;">รายละเอียด</div>
+            <div id="info-container"></div>
+        </div> -->
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -300,71 +227,39 @@
     <script src="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.js"></script>
     <script src="https://unpkg.com/shpjs@latest/dist/shp.js"></script>
     <script src="https://unpkg.com/tokml@0.4.0/tokml.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://unpkg.com/shp-write@0.3.2/shpwrite.js"></script>
 
     <script>
-        // --- VARIABLES ---
-        let map;
-        let currentProjId = null;
-        let layerStore = {}; 
-        let clickMarker = null; 
-        let exportTargetGroupId = null;
-
+        // --- VARS ---
+        let map, currentProjId, layerStore = {}, clickMarker, exportTargetGroupId;
         const googleRedIcon = L.icon({
             iconUrl: 'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2.png',
             iconSize: [27, 43], iconAnchor: [13, 43], popupAnchor: [0, -40], className: 'google-marker-icon'
         });
-        
-        // --- UTILS ---
-        function showModal(title, desc, isDanger, onConfirm) {
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-desc').innerText = desc;
-            document.getElementById('modal-input').style.display = 'none';
-            const btn = document.getElementById('modal-confirm-btn');
-            btn.className = isDanger ? 'btn-modal btn-danger' : 'btn-modal btn-confirm';
-            btn.onclick = () => { onConfirm(); closeModal(); };
-            document.getElementById('custom-modal').style.display = 'flex';
-        }
-
-        function showInputModal(title, label, onConfirm) {
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-desc').innerText = label;
-            const inp = document.getElementById('modal-input');
-            inp.style.display = 'block'; inp.value = ''; inp.focus();
-            const btn = document.getElementById('modal-confirm-btn');
-            btn.className = 'btn-modal btn-confirm';
-            btn.onclick = () => { if(inp.value.trim()){ onConfirm(inp.value.trim()); closeModal(); } };
-            document.getElementById('custom-modal').style.display = 'flex';
-        }
-
-        function closeModal() { document.getElementById('custom-modal').style.display = 'none'; }
-        function showLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
 
         // --- DASHBOARD ---
         function initDashboard() {
-            document.getElementById('dashboard-view').style.display = 'flex';
-            document.getElementById('map-view').style.display = 'none';
+            document.getElementById('dashboard-view').style.display='flex';
+            document.getElementById('map-view').style.display='none';
             renderProjects();
         }
-
         function getMeta() { return JSON.parse(localStorage.getItem('webgis_meta') || '[]'); }
-
         function renderProjects() {
-            const grid = document.getElementById('project-grid');
-            grid.innerHTML = '';
-            const list = getMeta().reverse();
-            list.forEach(p => {
-                const card = document.createElement('div');
-                card.className = 'project-card';
+            const grid = document.getElementById('project-grid'); grid.innerHTML = '';
+            getMeta().reverse().forEach(p => {
+                const card = document.createElement('div'); card.className = 'project-card';
+                // Use Map Tile for preview
+                let bg = 'https://mt1.google.com/vt/lyrs=m&x=130&y=95&z=8'; 
                 card.innerHTML = `
                     <div class="card-delete" onclick="askDeleteProject('${p.id}', event)"><i class="fa-solid fa-trash"></i></div>
-                    <div class="card-preview"><i class="fa-solid fa-map-location-dot" style="color:#ddd"></i></div>
+                    <div class="card-preview" style="background-image:url('${bg}')"></div>
                     <div class="card-body"><div class="card-title">${p.name}</div><div class="card-meta">แก้ไขล่าสุด: ${new Date(p.date).toLocaleDateString('th-TH')}</div></div>
                 `;
                 card.onclick = () => openProject(p.id);
                 grid.appendChild(card);
             });
         }
-
         function createNewProject() {
             const id = 'proj_' + Date.now();
             const meta = getMeta();
@@ -373,10 +268,9 @@
             localStorage.setItem('webgis_data_' + id, JSON.stringify([]));
             openProject(id);
         }
-
         function askDeleteProject(id, e) {
             e.stopPropagation();
-            showModal("ลบแผนที่", "คุณแน่ใจหรือไม่ว่าจะลบแผนที่นี้?", true, () => {
+            showModal("ลบแผนที่", "ยืนยันการลบ?", true, () => {
                 let meta = getMeta().filter(p => p.id !== id);
                 localStorage.setItem('webgis_meta', JSON.stringify(meta));
                 localStorage.removeItem('webgis_data_' + id);
@@ -390,161 +284,104 @@
             map = L.map('map', { zoomControl: false }).setView([13.7563, 100.5018], 11);
             L.control.zoom({ position: 'topleft' }).addTo(map);
 
-            const locateControl = L.Control.extend({
-                options: { position: 'topleft' },
-                onAdd: function(map) {
-                    const btn = L.DomUtil.create('div', 'leaflet-control-locate leaflet-bar');
-                    btn.innerHTML = '<i class="fa-solid fa-crosshairs locate-icon"></i>';
-                    btn.title = "ตำแหน่งของคุณ";
-                    btn.onclick = function() { map.locate({setView: true, maxZoom: 16}); };
-                    return btn;
-                }
-            });
-            map.addControl(new locateControl());
-
-            map.on('locationfound', function(e) {
+            // Locate Me
+            const btn = L.DomUtil.create('div', 'leaflet-control-locate leaflet-bar');
+            btn.innerHTML = '<i class="fa-solid fa-crosshairs"></i>';
+            btn.onclick = () => map.locate({setView:true, maxZoom:16});
+            const Ctl = L.Control.extend({ options:{position:'topleft'}, onAdd:()=>btn });
+            map.addControl(new Ctl());
+            map.on('locationfound', e => {
                 if(clickMarker) map.removeLayer(clickMarker);
-                clickMarker = L.marker(e.latlng, {icon: googleRedIcon}).addTo(map);
-                clickMarker.bindPopup('<div style="padding:5px;font-weight:500;">ตำแหน่งของคุณ</div>').openPopup();
-                L.circle(e.latlng, {radius: e.accuracy/2, color:'#1a73e8', fillColor:'#1a73e8', fillOpacity:0.1}).addTo(map);
+                clickMarker = L.marker(e.latlng, {icon: googleRedIcon}).addTo(map).bindPopup("ตำแหน่งของคุณ").openPopup();
             });
 
             const gStreet = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{maxZoom:20,subdomains:['mt0','mt1','mt2','mt3']}).addTo(map);
             const gHybrid = L.tileLayer('http://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',{maxZoom:20,subdomains:['mt0','mt1','mt2','mt3']});
-            const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
-            const esri = L.esri.basemapLayer('Imagery');
+            L.control.layers({ "Google ถนน": gStreet, "Google ดาวเทียม": gHybrid }, null, { position: 'bottomright' }).addTo(map);
 
-            L.control.layers({ "Google ถนน": gStreet, "Google ดาวเทียม": gHybrid, "Esri": esri, "OSM": osm }, null, { position: 'bottomright' }).addTo(map);
-
-            map.pm.addControls({ position: 'topleft', drawCircle:false, drawCircleMarker:false, drawRectangle:false, cutPolygon:false });
+            map.pm.addControls({ position: 'topleft', drawCircle:true, drawCircleMarker:false });
             L.control.polylineMeasure({ position: 'topleft', unit: 'metric' }).addTo(map);
 
             map.on('pm:create', e => handleDraw(e.layer));
             map.on('pm:remove', e => handleDelete(e.layer));
-            map.on('pm:edit', () => saveData()); 
-            map.on('pm:dragend', () => saveData());
+            map.on('pm:edit', saveData); map.on('pm:dragend', saveData);
             map.on('click', e => { if(!map.pm.globalRemovalModeEnabled()) handleMapClick(e.latlng); });
         }
 
         function openProject(id) {
-            showLoader(true);
-            currentProjId = id;
-            initMap();
-            
-            Object.values(layerStore).forEach(l => map.removeLayer(l));
-            layerStore = {};
+            showLoader(true); currentProjId = id; initMap();
+            Object.values(layerStore).forEach(l => map.removeLayer(l)); layerStore = {};
             if(clickMarker) map.removeLayer(clickMarker);
             document.getElementById('layer-list').innerHTML = '';
-            document.getElementById('info-container').innerHTML = '<div style="text-align:center; padding-top:40px; color:#aaa;">เลือกวัตถุบนแผนที่</div>';
-
+            
             const meta = getMeta().find(p => p.id === id);
             document.getElementById('proj-name').value = meta.name;
 
             setTimeout(() => {
-                const rawData = localStorage.getItem('webgis_data_' + id);
-                const data = JSON.parse(rawData || '[]');
-                if(data.length > 0) {
+                const data = JSON.parse(localStorage.getItem('webgis_data_' + id) || '[]');
+                if(data.length) {
                     const groups = {};
-                    data.forEach(feat => {
-                        const gName = feat.properties._layerName || "นำเข้า";
-                        if(!groups[gName]) groups[gName] = [];
-                        groups[gName].push(feat);
+                    data.forEach(f => {
+                        const g = f.properties._layerName || "นำเข้า";
+                        if(!groups[g]) groups[g] = []; groups[g].push(f);
                     });
-                    for(let gName in groups) {
-                        const subId = createGroupUI(gName);
-                        L.geoJSON(groups[gName], { onEachFeature: (f, l) => setupLayer(l, subId, f.properties) });
+                    for(let g in groups) {
+                        const subId = createGroupUI(g);
+                        L.geoJSON(groups[g], { 
+                            onEachFeature: (f,l) => setupLayer(l, subId, f.properties),
+                            style: (f) => ({ color: f.properties._color || '#3388ff', fillColor: f.properties._color || '#3388ff' })
+                        });
                     }
-                    const group = L.featureGroup(Object.values(layerStore));
-                    if(group.getLayers().length) map.fitBounds(group.getBounds());
-                } else {
-                    createGroupUI("เลเยอร์ที่ไม่มีชื่อ");
-                }
+                    const grp = L.featureGroup(Object.values(layerStore));
+                    if(grp.getLayers().length) map.fitBounds(grp.getBounds());
+                } else createGroupUI("เลเยอร์ 1");
+                
                 document.getElementById('dashboard-view').style.display = 'none';
                 document.getElementById('map-view').style.display = 'flex';
-                map.invalidateSize();
-                showLoader(false);
+                map.invalidateSize(); showLoader(false);
             }, 500);
         }
 
         function saveAndExit() { saveData(); initDashboard(); }
-        function updateMetaName(name) {
-            let meta = getMeta();
-            let p = meta.find(p => p.id === currentProjId);
-            if(p) { p.name = name; p.date = Date.now(); }
-            localStorage.setItem('webgis_meta', JSON.stringify(meta));
-        }
-
         function saveData() {
             if(!currentProjId) return;
             const geojson = [];
-            const groupDivs = document.querySelectorAll('.layer-group');
-            groupDivs.forEach(gDiv => {
-                const groupName = gDiv.querySelector('.group-title').innerText;
-                const items = gDiv.querySelectorAll('.layer-item');
-                items.forEach(item => {
-                    const lid = item.id.replace('row-', '');
-                    const layer = layerStore[lid];
+            document.querySelectorAll('.layer-group').forEach(gDiv => {
+                const gName = gDiv.querySelector('.group-title').innerText;
+                gDiv.querySelectorAll('.layer-item').forEach(item => {
+                    const layer = layerStore[item.id.replace('row-', '')];
                     if(layer) {
                         const j = layer.toGeoJSON();
                         j.properties = layer.feature.properties;
-                        j.properties._layerName = groupName; 
+                        j.properties._layerName = gName;
                         geojson.push(j);
                     }
                 });
             });
             localStorage.setItem('webgis_data_' + currentProjId, JSON.stringify(geojson));
-            updateMetaName(document.getElementById('proj-name').value);
+            let meta = getMeta(); meta.find(p=>p.id===currentProjId).name = document.getElementById('proj-name').value;
+            localStorage.setItem('webgis_meta', JSON.stringify(meta));
         }
 
-        // --- LAYER MANAGEMENT ---
+        // --- LAYERS ---
         function createGroupUI(name) {
             const id = 'g-' + Date.now() + Math.random().toString(16).slice(2);
             const subId = 'sub-' + id;
-            const div = document.createElement('div');
-            div.className = 'layer-group';
-            div.id = id;
+            const div = document.createElement('div'); div.className = 'layer-group'; div.id = id;
             div.innerHTML = `
                 <div class="group-header active" onclick="toggleGroup('${subId}', this)">
                     <i class="fa-solid fa-caret-down"></i>
-                    <input type="checkbox" checked onclick="event.stopPropagation(); toggleAll('${subId}', this.checked)" style="margin:0 10px;">
+                    <input type="checkbox" checked onclick="event.stopPropagation(); toggleAll('${subId}', this.checked)" style="margin:0 10px">
                     <span class="group-title">${name}</span>
                     <div class="group-actions">
-                         <div class="icon-btn" onclick="event.stopPropagation(); openExportModal('${name}')" title="ส่งออกเลเยอร์นี้"><i class="fa-solid fa-download"></i></div>
-                         <div class="icon-btn del" onclick="event.stopPropagation(); askDeleteGroup('${id}')" title="ลบเลเยอร์"><i class="fa-solid fa-trash"></i></div>
+                         <div class="icon-btn" onclick="event.stopPropagation(); openTable('${name}')" title="ดูตาราง"><i class="fa-solid fa-table"></i></div>
+                         <div class="icon-btn" onclick="event.stopPropagation(); openExportModal('${name}')" title="ส่งออก"><i class="fa-solid fa-download"></i></div>
+                         <div class="icon-btn del" onclick="event.stopPropagation(); askDeleteGroup('${id}')"><i class="fa-solid fa-trash"></i></div>
                     </div>
                 </div>
-                <div class="sub-items" id="${subId}" style="display:block"></div>
-            `;
+                <div class="sub-items" id="${subId}"></div>`;
             document.getElementById('layer-list').appendChild(div);
             return subId;
-        }
-
-        function askDeleteGroup(id) {
-            showModal("ลบเลเยอร์", "ข้อมูลทั้งหมดในเลเยอร์นี้จะหายไป", true, () => {
-                const gDiv = document.getElementById(id);
-                gDiv.querySelectorAll('.layer-item').forEach(item => {
-                    const lid = item.id.replace('row-', '');
-                    if(layerStore[lid]) { map.removeLayer(layerStore[lid]); delete layerStore[lid]; }
-                });
-                gDiv.remove();
-                saveData();
-            });
-        }
-
-        function handleDraw(layer) {
-            let groups = document.querySelectorAll('.sub-items');
-            let subId = groups.length > 0 ? groups[groups.length - 1].id : createGroupUI("เลเยอร์ใหม่");
-            setupLayer(layer, subId, { name: "จุด", description: "" });
-            saveData();
-            setTimeout(() => { layer.openPopup(); enableEdit(L.stamp(layer)); }, 200);
-        }
-
-        function handleDelete(layer) {
-            const lid = L.stamp(layer);
-            const row = document.getElementById('row-' + lid);
-            if(row) row.remove();
-            delete layerStore[lid];
-            saveData();
         }
 
         function setupLayer(layer, subId, props) {
@@ -552,254 +389,233 @@
             const lid = L.stamp(layer);
             layerStore[lid] = layer;
             layer.feature = layer.feature || { type: "Feature", properties: props || {} };
-            const name = getSmartName(layer.feature.properties);
+            
+            // Apply Color
+            if(props._color && layer.setStyle) {
+                layer.setStyle({ color: props._color, fillColor: props._color });
+            }
 
-            const container = document.getElementById(subId);
-            const div = document.createElement('div');
-            div.className = 'layer-item';
-            div.id = 'row-' + lid;
-            div.innerHTML = `
-                <input type="checkbox" checked onchange="toggleLayer(${lid}, this.checked)">
-                <span id="lbl-${lid}">${getIcon(layer)} ${name}</span>
-            `;
-            div.onclick = (e) => {
-                if(e.target.type !== 'checkbox') {
-                    panTo(layer);
-                    showInfo(layer.feature.properties, getCenter(layer));
-                    layer.openPopup();
-                }
-            };
-            container.appendChild(div);
+            const name = getSmartName(layer.feature.properties);
+            const div = document.createElement('div'); div.className = 'layer-item'; div.id = 'row-' + lid;
+            div.innerHTML = `<input type="checkbox" checked onchange="toggleLayer(${lid}, this.checked)"><span id="lbl-${lid}">${getIcon(layer)} ${name}</span>`;
+            div.onclick = (e) => { if(e.target.type!=='checkbox'){ panTo(layer); showInfo(layer.feature.properties, getCenter(layer)); layer.openPopup(); }};
+            document.getElementById(subId).appendChild(div);
 
             layer.bindPopup(createPopup(layer, name));
-            layer.on('click', e => {
-                if(!map.pm.globalRemovalModeEnabled()) {
-                    L.DomEvent.stopPropagation(e);
-                    showInfo(layer.feature.properties, e.latlng || getCenter(layer));
-                }
-            });
+            layer.on('click', e => { if(!map.pm.globalRemovalModeEnabled()){ L.DomEvent.stopPropagation(e); showInfo(layer.feature.properties, e.latlng || getCenter(layer)); }});
         }
 
-        // --- SEARCH & CLICK ---
-        document.getElementById('search-inp').addEventListener('keypress', function(e) { if(e.key === 'Enter') searchLoc(); });
-
-        function searchLoc() {
-            const q = document.getElementById('search-inp').value;
-            if(!q) return;
-            showLoader(true);
-            fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${q}&accept-language=th`)
-            .then(r=>r.json()).then(d=>{
-                showLoader(false);
-                if(d.length) {
-                    const lat = parseFloat(d[0].lat);
-                    const lon = parseFloat(d[0].lon);
-                    map.setView([lat, lon], 16);
-                    handleMapClick({lat:lat, lon:lon}, d[0].display_name); // ส่งชื่อที่ค้นหาไปเลย
-                } else { showModal("ไม่พบข้อมูล", "ไม่พบสถานที่นี้", false, ()=>{}); }
-            }).catch(()=>{ showLoader(false); });
-        }
-
-        function handleMapClick(latlng, manualName) {
-            if(clickMarker) map.removeLayer(clickMarker);
-            clickMarker = L.marker(latlng, {icon: googleRedIcon}).addTo(map);
-            map.panTo(latlng);
-            
-            // ถ้ามีชื่อส่งมาแล้ว (จากการค้นหา) ให้ใช้เลย
-            if(manualName) {
-                const shortName = manualName.split(',')[0];
-                clickMarker.bindPopup(createSimplePopup(shortName, manualName, latlng)).openPopup();
-                showInfo({"ที่อยู่": manualName}, latlng);
-                return;
-            }
-
-            // ถ้าจิ้มเอง ให้ Reverse Geocoding (แบบละเอียด + ภาษาไทย)
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latlng.lat}&lon=${latlng.lon}&accept-language=th`)
-            .then(r=>r.json()).then(d=>{
-                let placeName = "";
-                let details = "";
-
-                if(d.address) {
-                    // พยายามสร้างชื่อที่อ่านรู้เรื่อง (ถนน, ซอย, สถานที่)
-                    const a = d.address;
-                    placeName = a.road || a.building || a.village || a.hamlet || a.suburb || a.town || a.city || "ไม่มีชื่อสถานที่";
-                    
-                    // สร้างที่อยู่เต็ม
-                    const parts = [];
-                    if(a.road) parts.push(a.road);
-                    if(a.suburb) parts.push(a.suburb);
-                    if(a.district) parts.push(a.district);
-                    if(a.province) parts.push(a.province);
-                    details = parts.join(", ");
-                } else {
-                    placeName = d.display_name || "ตำแหน่งที่เลือก";
-                    details = placeName;
-                }
-
-                clickMarker.bindPopup(createSimplePopup(placeName, details, latlng)).openPopup();
-                showInfo({"ที่อยู่": details}, latlng);
-            })
-            .catch(() => {
-                // Fallback ถ้าเน็ตหลุดหรือ API พัง
-                const coordStr = `${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}`;
-                clickMarker.bindPopup(createSimplePopup("ตำแหน่งพิกัด", coordStr, latlng)).openPopup();
-                showInfo({"พิกัด": coordStr}, latlng);
-            });
-        }
-
-        function createSimplePopup(title, fullAddr, latlng) {
-            return `
-                <div style="padding:5px;">
-                    <div style="font-size:16px; font-weight:600; margin-bottom:5px; color:#202124;">${title}</div>
-                    <div style="font-size:12px; color:#5f6368; margin-bottom:8px; line-height:1.4;">${fullAddr}</div>
-                    <div style="font-size:12px; color:#1a73e8;">${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}</div>
-                </div>
-            `;
-        }
-
-        // --- IMPORT/EXPORT ---
-        function openExportModal(groupId) {
-            exportTargetGroupId = groupId;
-            document.getElementById('export-modal').style.display = 'flex';
-        }
-        function triggerExport(format) {
-            exportData(format, exportTargetGroupId);
-            document.getElementById('export-modal').style.display = 'none';
-        }
-
-        document.getElementById('fileInput').onchange = function(e) {
-            const file = e.target.files[0];
-            if(!file) return;
-            showLoader(true);
-            const subId = createGroupUI(file.name.replace(/\.[^/.]+$/, ""));
-            const reader = new FileReader();
-            
-            if(file.name.endsWith('.zip')) {
-                reader.readAsArrayBuffer(file);
-                reader.onload = b => shp(b.target.result).then(g => finishImport(g, subId));
-            } else {
-                reader.readAsText(file, "UTF-8");
-                reader.onload = t => {
-                    try {
-                        const txt = t.target.result;
-                        let geo;
-                        if(file.name.endsWith('.kml')) {
-                            const kmlDom = new DOMParser().parseFromString(txt, 'text/xml');
-                            geo = toGeoJSON.kml(kmlDom);
-                        } else { geo = JSON.parse(txt); }
-                        finishImport(geo, subId);
-                    } catch(e) { showLoader(false); alert("File Error"); }
-                }
-            }
-            this.value = '';
-        }
-
-        function finishImport(geo, subId) {
-            const group = L.featureGroup();
-            const features = Array.isArray(geo) ? geo : (geo.features || [geo]);
-            L.geoJSON(features, { onEachFeature: (f,l) => { setupLayer(l, subId, f.properties); group.addLayer(l); } });
-            if(group.getLayers().length) map.fitBounds(group.getBounds());
-            saveData(); showLoader(false);
-        }
-
-        function exportData(format, targetGroupName) {
-            const geojson = { type: "FeatureCollection", features: [] };
-            const groupDivs = document.querySelectorAll('.layer-group');
-            groupDivs.forEach(gDiv => {
-                const groupName = gDiv.querySelector('.group-title').innerText;
-                if(!targetGroupName || groupName === targetGroupName) {
-                    gDiv.querySelectorAll('.layer-item').forEach(item => {
-                        const lid = item.id.replace('row-', '');
-                        const layer = layerStore[lid];
-                        if(layer) {
-                            const f = layer.toGeoJSON(); f.properties = layer.feature.properties; geojson.features.push(f);
-                        }
-                    });
-                }
-            });
-
-            if(geojson.features.length === 0) return showModal("ข้อผิดพลาด", "ไม่มีข้อมูลให้ส่งออก", false, ()=>{});
-            
-            const name = targetGroupName ? targetGroupName : document.getElementById('proj-name').value;
-            let content, filename, type;
-            if(format === 'kml') {
-                content = tokml(geojson); filename = name + ".kml"; type = "application/vnd.google-earth.kml+xml;charset=utf-8";
-            } else {
-                content = JSON.stringify(geojson, null, 2); filename = name + ".geojson"; type = "application/json;charset=utf-8";
-            }
-            const blob = new Blob(["\uFEFF"+content], { type: type });
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
-        }
-
-        // --- UI HELPERS ---
+        // --- POPUP & COLOR ---
         function createPopup(layer, name) {
             const lid = L.stamp(layer);
             const desc = layer.feature.properties.description || "";
+            const color = layer.feature.properties._color || "#3388ff";
             return `
                 <div class="popup-header"><input class="popup-title-inp" id="pt-${lid}" value="${name}" readonly></div>
                 <div class="popup-body"><textarea class="popup-desc-inp" id="pd-${lid}" readonly placeholder="เพิ่มคำอธิบาย...">${desc}</textarea></div>
+                <div class="color-picker-row" id="cp-${lid}" style="display:none;">
+                    <span style="font-size:12px; font-weight:600;">เปลี่ยนสี:</span>
+                    <input type="color" onchange="changeColor(${lid}, this.value)" value="${color}">
+                </div>
                 <div class="popup-footer">
                     <i class="fa-solid fa-pen pop-icon" title="แก้ไข" onclick="enableEdit(${lid})"></i>
                     <i class="fa-solid fa-trash pop-icon del" title="ลบ" onclick="askDeleteLayer(${lid})"></i>
-                    <i class="fa-solid fa-check pop-icon" id="ps-${lid}" style="display:none; color:#28a745" title="บันทึก" onclick="saveEdit(${lid})"></i>
-                </div>
-            `;
+                    <i class="fa-solid fa-check pop-icon" id="ps-${lid}" style="display:none; color:#28a745" onclick="saveEdit(${lid})"></i>
+                </div>`;
         }
-
-        window.enableEdit = function(lid) {
+        function enableEdit(lid) {
             document.getElementById(`pt-${lid}`).removeAttribute('readonly');
             document.getElementById(`pt-${lid}`).focus();
             document.getElementById(`pd-${lid}`).removeAttribute('readonly');
             document.getElementById(`ps-${lid}`).style.display = 'inline';
+            document.getElementById(`cp-${lid}`).style.display = 'flex';
         }
-
-        window.saveEdit = function(lid) {
+        function changeColor(lid, color) {
+            const layer = layerStore[lid];
+            if(layer.setStyle) layer.setStyle({ color: color, fillColor: color });
+            layer.feature.properties._color = color;
+        }
+        function saveEdit(lid) {
             const layer = layerStore[lid];
             const name = document.getElementById(`pt-${lid}`).value;
-            const desc = document.getElementById(`pd-${lid}`).value;
             layer.feature.properties.name = name;
-            layer.feature.properties.description = desc;
+            layer.feature.properties.description = document.getElementById(`pd-${lid}`).value;
             document.getElementById(`lbl-${lid}`).innerHTML = `${getIcon(layer)} ${name}`;
             layer.closePopup(); layer.unbindPopup(); layer.bindPopup(createPopup(layer, name)); layer.openPopup();
             saveData();
         }
 
-        window.askDeleteLayer = function(lid) {
-            showModal("ลบจุด", "ยืนยันการลบ?", true, () => { map.removeLayer(layerStore[lid]); });
-        }
-
-        function showInfo(props, latlng) {
+        // --- SMART PLACE NAMES ---
+        function handleMapClick(latlng, manualName) {
+            if(clickMarker) map.removeLayer(clickMarker);
+            clickMarker = L.marker(latlng, {icon: googleRedIcon}).addTo(map);
             map.panTo(latlng);
-            let h = "";
-            for(let k in props) if(k!=='_layerName') h += `<div class="info-row"><div class="label">${k}</div><div class="value">${props[k]}</div></div>`;
-            h += `<div class="info-row"><div class="label">พิกัด</div><div class="value">${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}</div></div>`;
-            document.getElementById('info-container').innerHTML = h;
-            updateStreetView(latlng);
-        }
 
-        function updateStreetView(latlng) {
-            const img=document.getElementById('sv-image'), ifr=document.getElementById('sv-iframe'), msg=document.getElementById('sv-msg');
-            img.style.display='none'; ifr.style.display='none'; msg.style.display='block'; msg.innerText="กำลังค้นหาภาพ...";
-            
-            const token = 'MLY|25589789454017833|bf665b64d332332cc14bc428b9f1d210';
-            fetch(`https://graph.mapillary.com/images?access_token=${token}&fields=thumb_1024_url&limit=1&closeto=${latlng.lng},${latlng.lat}&radius=50`)
+            if(manualName) {
+                clickMarker.bindPopup(createSimplePopup(manualName, manualName, latlng)).openPopup();
+                showInfo({"ที่อยู่": manualName}, latlng);
+                return;
+            }
+
+            // SMART FETCHING: Prioritize amenity/shop/building
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latlng.lat}&lon=${latlng.lon}&accept-language=th&addressdetails=1&zoom=18`)
             .then(r=>r.json()).then(d=>{
-                if(d.data?.length){ img.src=d.data[0].thumb_1024_url; img.style.display='block'; msg.style.display='none'; }
-                else { 
-                    ifr.src=`https://maps.google.com/maps?q=&layer=c&cbll=${latlng.lat},${latlng.lng}&cbp=11,0,0,0,0&output=svembed`; 
-                    ifr.style.display='block'; msg.style.display='none'; 
+                let name = "ตำแหน่งที่เลือก", detail = d.display_name;
+                if(d.address) {
+                    const a = d.address;
+                    name = a.amenity || a.shop || a.tourism || a.leisure || a.office || a.emergency || a.healthcare || a.historic || a.building || a.road || a.village || a.suburb || name;
                 }
-            }).catch(()=>{
-                 ifr.src=`https://maps.google.com/maps?q=&layer=c&cbll=${latlng.lat},${latlng.lng}&cbp=11,0,0,0,0&output=svembed`; 
-                 ifr.style.display='block'; msg.style.display='none';
+                // Handle "undefined" string
+                if(name === "undefined") name = "ตำแหน่งที่เลือก";
+                
+                clickMarker.bindPopup(createSimplePopup(name, detail, latlng)).openPopup();
+                showInfo({"สถานที่": name, "รายละเอียด": detail}, latlng);
             });
         }
-
-        // Helpers
-        function toggleGroup(id, el) { 
-            const d=document.getElementById(id); 
-            if(d.style.display==='none'){d.style.display='block'; el.classList.add('active'); el.querySelector('i').className='fa-solid fa-caret-down';}
-            else{d.style.display='none'; el.classList.remove('active'); el.querySelector('i').className='fa-solid fa-caret-right';} 
+        
+        function createSimplePopup(t,d,l) {
+            return `<div style="padding:5px;"><div style="font-weight:600;font-size:16px;">${t}</div><div style="font-size:12px;color:#666;margin:5px 0;line-height:1.4;">${d}</div><div style="color:#1a73e8;font-size:12px;">${l.lat.toFixed(5)}, ${l.lng.toFixed(5)}</div></div>`;
         }
+
+        document.getElementById('search-inp').addEventListener('keypress', e=>{ if(e.key==='Enter') searchLoc(); });
+        function searchLoc() {
+            const q = document.getElementById('search-inp').value;
+            if(!q) return; showLoader(true);
+            fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${q}&accept-language=th&addressdetails=1`)
+            .then(r=>r.json()).then(d=>{
+                showLoader(false);
+                if(d.length) {
+                    const lat=parseFloat(d[0].lat), lon=parseFloat(d[0].lon);
+                    map.setView([lat,lon], 16);
+                    handleMapClick({lat:lat, lon:lon}, d[0].display_name.split(',')[0]);
+                } else showModal("ไม่พบ","ไม่พบสถานที่",false,()=>{});
+            }).catch(()=>{showLoader(false)});
+        }
+
+        // --- IMPORT/EXPORT (SHAPEFILE ADDED) ---
+        function openExportModal(g) { exportTargetGroupId = g; document.getElementById('export-modal').style.display='flex'; }
+        
+        document.getElementById('fileInput').onchange = function(e) {
+            const file = e.target.files[0]; if(!file) return; showLoader(true);
+            const subId = createGroupUI(file.name.replace(/\.[^/.]+$/, ""));
+            
+            if(file.name.endsWith('.zip')) {
+                const r = new FileReader(); r.onload=b=>shp(b.target.result).then(g=>finishImport(g,subId)); r.readAsArrayBuffer(file);
+            } else if(file.name.endsWith('.csv')) {
+                Papa.parse(file, { header: true, complete: (res) => {
+                    res.data.forEach(row => {
+                        const lat = parseFloat(row.lat||row.latitude), lng = parseFloat(row.lon||row.longitude);
+                        if(!isNaN(lat)&&!isNaN(lng)) {
+                            const marker = L.circleMarker([lat,lng], {radius:6, color:'#3388ff'});
+                            setupLayer(marker, subId, row);
+                        }
+                    }); saveData(); showLoader(false);
+                }});
+            } else {
+                const r = new FileReader(); r.onload=t=>{ 
+                    try { 
+                        let g = file.name.endsWith('.kml') ? toGeoJSON.kml(new DOMParser().parseFromString(t.target.result,'text/xml')) : JSON.parse(t.target.result);
+                        finishImport(g, subId);
+                    } catch(e){ alert("Error"); showLoader(false); }
+                }; r.readAsText(file);
+            }
+            this.value='';
+        }
+
+        function finishImport(g, subId) {
+            const grp = L.featureGroup();
+            const features = Array.isArray(g) ? g : (g.features || [g]);
+            L.geoJSON(features, { onEachFeature:(f,l)=>{setupLayer(l,subId,f.properties); grp.addLayer(l);} });
+            if(grp.getLayers().length) map.fitBounds(grp.getBounds());
+            saveData(); showLoader(false);
+        }
+
+        function triggerExport(format) {
+            let data = [];
+            document.querySelectorAll('.layer-group').forEach(g => {
+                const gName = g.querySelector('.group-title').innerText;
+                if(!exportTargetGroupId || gName === exportTargetGroupId) {
+                    g.querySelectorAll('.layer-item').forEach(i => {
+                        const l = layerStore[i.id.replace('row-', '')];
+                        if(l) { let f = l.toGeoJSON(); f.properties = l.feature.properties; data.push(f); }
+                    });
+                }
+            });
+
+            if(!data.length) return alert("ไม่มีข้อมูล");
+            const name = exportTargetGroupId || document.getElementById('proj-name').value;
+            const geojson = {type:'FeatureCollection', features:data};
+            let content, ext, type;
+
+            if(format === 'shapefile') {
+                // Shapefile Export using shp-write
+                try {
+                    const options = {
+                        folder: name,
+                        types: {
+                            point: name + '_point',
+                            polygon: name + '_poly',
+                            line: name + '_line'
+                        }
+                    };
+                    shpwrite.download(geojson, options);
+                    document.getElementById('export-modal').style.display='none';
+                    return; // shpwrite handles download
+                } catch(e) { alert("Shapefile export failed. Try GeoJSON."); return; }
+            } else if(format === 'csv') {
+                const rows = data.map(f => {
+                    let r = { ...f.properties };
+                    if(f.geometry.type === 'Point') { r.lat = f.geometry.coordinates[1]; r.lng = f.geometry.coordinates[0]; }
+                    return r;
+                });
+                content = Papa.unparse(rows); ext = 'csv'; type = 'text/csv;charset=utf-8;';
+            } else if(format === 'kml') {
+                content = tokml(geojson); ext = 'kml'; type = 'application/vnd.google-earth.kml+xml;charset=utf-8';
+            } else {
+                content = JSON.stringify(geojson); ext = 'geojson'; type = 'application/json;charset=utf-8';
+            }
+            
+            const blob = new Blob(["\uFEFF"+content], {type:type});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name+'.'+ext; a.click();
+            document.getElementById('export-modal').style.display='none';
+        }
+
+        // --- ATTRIBUTE TABLE ---
+        function openTable(targetGroup) {
+            let headers = new Set(['name', 'description']);
+            let rows = [];
+            
+            // Collect data only for the target group (or all if needed, but request said per layer)
+            Object.values(layerStore).forEach(l => {
+                if(l.feature.properties._layerName === targetGroup) {
+                    Object.keys(l.feature.properties).forEach(k => { if(!k.startsWith('_')) headers.add(k); });
+                    rows.push(l.feature.properties);
+                }
+            });
+
+            if(rows.length === 0) return alert("ไม่มีข้อมูลในเลเยอร์นี้");
+
+            let html = `<table class="data-table"><thead><tr>`;
+            headers.forEach(h => html += `<th>${h}</th>`);
+            html += `</tr></thead><tbody>`;
+            rows.forEach(r => {
+                html += `<tr>`;
+                headers.forEach(h => html += `<td>${r[h] || ''}</td>`);
+                html += `</tr>`;
+            });
+            html += `</tbody></table>`;
+            document.getElementById('table-content').innerHTML = html;
+            document.getElementById('table-modal').style.display = 'flex';
+        }
+
+        // --- UTILS ---
+        function showModal(t,d,isD,cb) { document.getElementById('modal-title').innerText=t; document.getElementById('modal-desc').innerText=d; document.getElementById('custom-modal').style.display='flex'; document.getElementById('modal-confirm-btn').onclick=()=>{cb();closeModal()}; document.getElementById('modal-input').style.display='none'; }
+        function showInputModal(t,l,cb) { document.getElementById('modal-title').innerText=t; document.getElementById('modal-desc').innerText=l; document.getElementById('modal-input').style.display='block'; document.getElementById('custom-modal').style.display='flex'; document.getElementById('modal-confirm-btn').onclick=()=>{cb(document.getElementById('modal-input').value);closeModal()}; }
+        function closeModal() { document.getElementById('custom-modal').style.display='none'; }
+        function showLoader(s) { document.getElementById('loader').style.display = s?'flex':'none'; }
+        function askDeleteGroup(id) { showModal("ลบเลเยอร์", "ยืนยัน?", true, ()=>{ document.getElementById(id).remove(); Object.values(layerStore).forEach(l=>{if(l.feature.properties._layerName===document.getElementById(id).querySelector('.group-title').innerText) map.removeLayer(l)}); saveData(); }); }
+        
+        function toggleGroup(id, el) { const d=document.getElementById(id); if(d.style.display==='none'){d.style.display='block';el.classList.add('active');el.querySelector('i').className='fa-solid fa-caret-down';}else{d.style.display='none';el.classList.remove('active');el.querySelector('i').className='fa-solid fa-caret-right';} }
         function toggleAll(id, c) { document.getElementById(id).querySelectorAll('input').forEach(i=>{i.checked=c;i.dispatchEvent(new Event('change'))}); }
         window.toggleLayer = (lid, c) => c ? map.addLayer(layerStore[lid]) : map.removeLayer(layerStore[lid]);
         window.toggleSize = () => document.getElementById('sidebar-right').classList.toggle('expanded');
@@ -807,6 +623,10 @@
         function getIcon(l) { return (l instanceof L.Marker)?'<i class="fa-solid fa-location-dot" style="color:#1a73e8"></i>':'<i class="fa-solid fa-route" style="color:#1a73e8"></i>'; }
         function panTo(l) { l.getBounds ? map.fitBounds(l.getBounds()) : (map.panTo(l.getLatLng()), map.setZoom(17)); }
         function getCenter(l) { return l.getLatLng ? l.getLatLng() : l.getBounds().getCenter(); }
+        function handleDraw(l) { let grps=document.querySelectorAll('.sub-items'); let sid=grps.length?grps[grps.length-1].id:createGroupUI("เลเยอร์ 1"); setupLayer(l,sid,{name:"จุดใหม่",description:""}); saveData(); setTimeout(()=>{l.openPopup();enableEdit(L.stamp(l))},200); }
+        function handleDelete(l) { document.getElementById('row-'+L.stamp(l))?.remove(); delete layerStore[L.stamp(l)]; saveData(); }
+        function showInfo(props, latlng) { map.panTo(latlng); let h = ""; for(let k in props) if(!k.startsWith('_')) h += `<div class="info-row"><div class="label">${k}</div><div class="value">${props[k]}</div></div>`; h += `<div class="info-row"><div class="label">พิกัด</div><div class="value">${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}</div></div>`; document.getElementById('info-container').innerHTML = h; updateSV(latlng); }
+        function updateSV(latlng) { document.getElementById('sv-image').style.display='none'; document.getElementById('sv-iframe').src=`https://maps.google.com/maps?q=&layer=c&cbll=${latlng.lat},${latlng.lng}&cbp=11,0,0,0,0&output=svembed`; document.getElementById('sv-iframe').style.display='block'; }
 
         window.onload = initDashboard;
     </script>
